@@ -54,9 +54,9 @@ jobs:
 
       - name: Build Docker Image
         run: |
-          docker build -t chay2046/flaskapp:latest .
+          docker build -t chay2406/flaskapp:latest .
 
       - name: Push Docker Image
         run: |
-          docker push chay2046/flaskapp:latest
+          docker push chay2406/flaskapp:latest
 
