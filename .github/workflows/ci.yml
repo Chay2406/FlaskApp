@@ -1,4 +1,4 @@
-name: FlaskApp CI/CD Pipeline
+name: Adding CI/CD Pipeline
 
 on:
   push:
