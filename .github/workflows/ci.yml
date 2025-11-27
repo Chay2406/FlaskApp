@@ -1,4 +1,4 @@
-name: Adding CI/CD Pipeline
+name: FlaskApp CI/CD Pipeline
 
 on:
   push:
@@ -42,7 +42,7 @@ jobs:
           username: ${{ secrets.MAIL_USERNAME }}
           password: ${{ secrets.MAIL_PASSWORD }}
           subject: "❌ CI Test Failed"
-          to: youremail@example.com
+          to: your.email@example.com   # <-- Replace with your real email
           from: ${{ secrets.MAIL_USERNAME }}
           body: "One or more tests failed in GitHub Actions."
 
@@ -51,33 +51,29 @@ jobs:
   # -------------------------
   docker_build:
     runs-on: ubuntu-latest
-    needs: tests   # Only run if tests pass
+    needs: tests   # Only runs if tests pass
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
 
-        run: |
-          docker build -t flaskapp:latest .
+      - name: Build Docker Image
+        run: docker build -t flaskapp:latest .
 
-      # Tag and Push to Docker Hub
+      - name: Push to Docker Hub
         run: |
           docker tag flaskapp:latest ${{ secrets.DOCKER_USERNAME }}/flaskapp:latest
-          docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
+          echo ${{ secrets.DOCKER_PASSWORD }} | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
+          docker push ${{ secrets.DOCKER_USERNAME }}/flaskapp:latest
 
-      # Login to Second Registry (Private Registry Example)
+      - name: Login to Private Registry
         uses: docker/login-action@v3
         with:
+          registry: ${{ secrets.PRIVATE_REGISTRY_URL }}
           username: ${{ secrets.PRIVATE_REGISTRY_USER }}
           password: ${{ secrets.PRIVATE_REGISTRY_PASS }}
 
-      # Tag & Push to Private Registry
       - name: Push to Private Registry
+        run: |
           docker tag flaskapp:latest ${{ secrets.PRIVATE_REGISTRY_URL }}/flaskapp:latest
           docker push ${{ secrets.PRIVATE_REGISTRY_URL }}/flaskapp:latest
-        run: |
-          registry: ${{ secrets.PRIVATE_REGISTRY_URL }}
-      - name: Log in to Private Registry
-          docker push ${{ secrets.DOCKER_USERNAME }}/flaskapp:latest
-      - name: Push to Docker Hub
-      # Build Docker Image
